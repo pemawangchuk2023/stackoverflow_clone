@@ -1,3 +1,4 @@
+import MobileNavigation from "@/components/navigation/navbar/MobileNavigation"
 import ThemeToggle from "@/components/navigation/themes/ThemeToggle"
 import Image from "next/image"
 import Link from "next/link"
@@ -24,6 +25,7 @@ const Navbar = () => {
 			<p>GlobalSearch</p>
 			<div className="flex-between gap-5">
 				<ThemeToggle />
+				<MobileNavigation />
 			</div>
 		</nav>
 	)
