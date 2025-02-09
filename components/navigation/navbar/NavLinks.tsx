@@ -4,13 +4,13 @@ import { sidebarLinks } from "@/constants"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import Link from "next/link"
-
 import { usePathname } from "next/navigation"
 import React from "react"
 
 const NavLinks = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
 	const pathname = usePathname()
 	const userId = 1
+
 	return (
 		<>
 			{sidebarLinks.map((item) => {
@@ -23,10 +23,9 @@ const NavLinks = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
 					else return null
 				}
 
-				const linkComponent = (
+				const LinkComponent = (
 					<Link
 						href={item.route}
-						key={item.label}
 						className={cn(
 							isActive
 								? "primary-gradient rounded-lg text-light-900"
@@ -53,14 +52,13 @@ const NavLinks = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
 						</p>
 					</Link>
 				)
+
 				return isMobileNav ? (
 					<SheetClose asChild key={item.label}>
-						{linkComponent}
+						{LinkComponent}
 					</SheetClose>
 				) : (
-					<>
-						<div key={item.route}>{linkComponent}</div>
-					</>
+					<div key={item.label}>{LinkComponent}</div>
 				)
 			})}
 		</>
