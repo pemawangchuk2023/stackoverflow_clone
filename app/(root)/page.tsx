@@ -1,3 +1,5 @@
+import QuestionCard from "@/components/cards/QuestionCard"
+import HomeFilter from "@/components/filters/HomeFilter"
 import LocalSearch from "@/components/search/LocalSearch"
 import { Button } from "@/components/ui/button"
 import ROUTES from "@/constants/routes"
@@ -13,7 +15,12 @@ const questions = [
 			{ _id: "1", name: "NextJS" },
 			{ _id: "2", name: "TypeScript" },
 		],
-		author: { _id: "1", name: "Pema" },
+		author: {
+			_id: "1",
+			name: "Pema",
+			image:
+				"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBwgu1A5zgPSvfE83nurkuzNEoXs9DMNr8Ww&s",
+		},
 		upvotes: 10,
 		answers: 5,
 		views: 100,
@@ -27,24 +34,15 @@ const questions = [
 			{ _id: "3", name: "NextJS" },
 			{ _id: "4", name: "Authentication" },
 		],
-		author: { _id: "2", name: "Tenzin" },
+		author: {
+			_id: "2",
+			name: "Tenzin",
+			image:
+				"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBwgu1A5zgPSvfE83nurkuzNEoXs9DMNr8Ww&s",
+		},
 		upvotes: 15,
 		answers: 8,
 		views: 120,
-		createdAt: new Date(),
-	},
-	{
-		_id: "3",
-		title: "What are the key features of TypeScript?",
-		description: "Looking to understand the features of TypeScript.",
-		tags: [
-			{ _id: "2", name: "TypeScript" },
-			{ _id: "5", name: "JavaScript" },
-		],
-		author: { _id: "3", name: "Lhamo" },
-		upvotes: 7,
-		answers: 3,
-		views: 80,
 		createdAt: new Date(),
 	},
 ]
@@ -53,7 +51,7 @@ interface SearchParams {
 }
 
 const HomePage = async ({ searchParams }: SearchParams) => {
-	const { query = "" } = await searchParams
+	const { query = "", filter = "" } = await searchParams
 	const filteredQuestions = questions.filter((question) =>
 		question.title.toLowerCase().includes(query?.toLowerCase())
 	)
@@ -80,10 +78,10 @@ const HomePage = async ({ searchParams }: SearchParams) => {
 					otherClasses="flex-1"
 				/>
 			</section>
-			HomeFilters
+			<HomeFilter />
 			<div className="mt-10 flex w-full flex-col gap-6">
 				{filteredQuestions.map((question) => (
-					<h1 key={question._id}>{question.title}</h1>
+					<QuestionCard key={question._id} question={question} />
 				))}
 			</div>
 		</>

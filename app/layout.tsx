@@ -1,22 +1,11 @@
 import type { Metadata } from "next"
 import "./globals.css"
-import { Inter } from "next/font/google"
+
 import { ThemeProvider } from "@/components/ui/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { SessionProvider } from "next-auth/react"
 import { auth } from "@/auth"
 import React from "react"
-
-const inter = Inter({
-	subsets: ["latin"],
-	weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-	variable: "--font-inter",
-})
-const spaceGrotesk = Inter({
-	subsets: ["latin"],
-	weight: ["100", "200", "300", "400", "500", "600", "700"],
-	variable: "--font-spaceGrotesk",
-})
 
 export const metadata: Metadata = {
 	title: "Stack Overflow Clone",
@@ -42,7 +31,7 @@ const RootLayout = async ({
 				/>
 			</head>
 			<SessionProvider session={session}>
-				<body className={`${inter.variable} ${spaceGrotesk.variable}`}>
+				<body>
 					<ThemeProvider
 						attribute="class"
 						defaultTheme="dark"
