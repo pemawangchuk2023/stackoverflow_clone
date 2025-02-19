@@ -9,17 +9,8 @@ interface Props {
 	question: Question
 }
 const QuestionCard = ({ question }: Props) => {
-	const {
-		_id,
-		title,
-		tags,
-		author,
-		createdAt,
-		upvotes,
-		answers,
-		views,
-		content,
-	} = question
+	const { _id, title, tags, author, createdAt, upvotes, answers, views } =
+		question
 	return (
 		<div className="card-wrapper rounded-[10px] sm:px-11">
 			<div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
