@@ -1,6 +1,5 @@
 import mongoose, { Mongoose } from "mongoose"
 
-import "@/database"
 import { logger } from "@/lib/logger"
 
 const MONGODB_URI = process.env.MONGODB_URI as string
@@ -34,7 +33,7 @@ const dbConnect = async (): Promise<Mongoose> => {
 	if (!cached.promise) {
 		cached.promise = mongoose
 			.connect(MONGODB_URI, {
-				dbName: "StackOverflow Clone",
+				dbName: "StackOverFlowClone",
 			})
 			.then((result) => {
 				logger.info("Connected to MongoDB")
