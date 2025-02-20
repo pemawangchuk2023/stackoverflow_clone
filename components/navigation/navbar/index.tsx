@@ -1,10 +1,13 @@
+import { auth } from "@/auth"
 import MobileNavigation from "@/components/navigation/navbar/MobileNavigation"
 import ThemeToggle from "@/components/navigation/themes/ThemeToggle"
+import UserAvatar from "@/components/UserAvatar"
 import Image from "next/image"
 import Link from "next/link"
 import React from "react"
 
-const Navbar = () => {
+const Navbar = async () => {
+	const session = await auth()
 	return (
 		<nav
 			className="flex-between background-light900_dark200 fixed 
@@ -25,6 +28,13 @@ const Navbar = () => {
 			<p>GlobalSearch</p>
 			<div className="flex-between gap-5">
 				<ThemeToggle />
+				{session?.user?.id && (
+					<UserAvatar
+						id={session.user.id}
+						name={session.user.name}
+						imageUrl={session.user?.image}
+					/>
+				)}
 				<MobileNavigation />
 			</div>
 		</nav>
