@@ -36,7 +36,6 @@ const HomeFilter = () => {
 		}
 		router.push(`${pathname}?${newUrl}`)
 	}
-
 	return (
 		<div className="mt-10 hidden flex-wrap gap-3 md:flex">
 			{filters.map((filter) => (

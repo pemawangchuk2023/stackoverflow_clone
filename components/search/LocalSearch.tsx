@@ -1,4 +1,5 @@
 "use client"
+
 import { Input } from "@/components/ui/input"
 import { formUrlQuery, removeKeysFromQuery } from "@/lib/url"
 import Image from "next/image"
@@ -10,8 +11,16 @@ interface Props {
 	imgSrc: string
 	placeholder: string
 	otherClasses?: string
+	iconPosition?: "left" | "right"
 }
-const LocalSearch = ({ route, imgSrc, placeholder, otherClasses }: Props) => {
+
+const LocalSearch = ({
+	route,
+	imgSrc,
+	placeholder,
+	otherClasses,
+	iconPosition = "left",
+}: Props) => {
 	const pathname = usePathname()
 	const router = useRouter()
 	const searchParams = useSearchParams()
@@ -37,30 +46,43 @@ const LocalSearch = ({ route, imgSrc, placeholder, otherClasses }: Props) => {
 				}
 			}
 		}, 300)
+
 		return () => clearTimeout(delayDebounceFn)
 	}, [searchQuery, router, route, searchParams, pathname])
 
 	return (
 		<div
 			className={`background-light800_darkgradient flex min-h-[56px] 
-        grow items-center gap-4 rounded-[10px] px-4 ${otherClasses}`}
+      grow items-center gap-4 rounded-[10px] px-4 ${otherClasses}`}
 		>
-			<Image
-				src={imgSrc}
-				alt="search"
-				height={24}
-				width={24}
-				className="cursor-pointer"
-			/>
+			{iconPosition === "left" && (
+				<Image
+					src={imgSrc}
+					alt="search"
+					height={24}
+					width={24}
+					className="cursor-pointer"
+				/>
+			)}
+
 			<Input
 				type="text"
 				placeholder={placeholder}
 				value={searchQuery}
 				onChange={(e) => setSearchQuery(e.target.value)}
-				className="paragraph-regular no-focus placeholder
-            text-dark400_light700 border-none shadow-none outline-none
-            "
+				className="paragraph-regular no-focus placeholder:text-dark400_light700 
+        border-none shadow-none outline-none"
 			/>
+
+			{iconPosition === "right" && (
+				<Image
+					src={imgSrc}
+					alt="search"
+					height={24}
+					width={24}
+					className="cursor-pointer"
+				/>
+			)}
 		</div>
 	)
 }

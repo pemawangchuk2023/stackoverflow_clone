@@ -62,7 +62,6 @@ export async function POST(request: Request) {
 		}).session(session)
 
 		if (!existingAccount) {
-			console.log("Creating account with userId:", existingUser._id)
 			await Account.create(
 				[
 					{

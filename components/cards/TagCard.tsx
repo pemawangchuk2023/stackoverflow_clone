@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import ROUTES from "@/constants/routes"
-import { getDeviconClassName } from "@/lib/utils"
+import { cn, getDeviconClassName, getTechDescription } from "@/lib/utils"
 import Image from "next/image"
 import Link from "next/link"
 import React from "react"
@@ -28,6 +28,7 @@ const TagCard = ({
 	handleRemove,
 }: Props) => {
 	const iconsClass = getDeviconClassName(name)
+	const iconDescription = getTechDescription(name)
 
 	const handleClick = (e: React.MouseEvent) => {
 		e.preventDefault()
@@ -69,11 +70,27 @@ const TagCard = ({
 				<Content />
 			</Button>
 		) : (
-			<Link href={ROUTES.TAGS(_id)} className="flex justify-between gap-2">
+			<Link href={ROUTES.TAG(_id)} className="flex justify-between gap-2">
 				<Content />
 			</Link>
 		)
 	}
+	return (
+		<Link href={ROUTES.TAG(_id)} className="shadow-light100_darknone">
+			<article className="background-light900_dark200 light-border flex w-full flex-col rounded-2xl border px-8 py-10 sm:w-[260px]">
+				<div className="flex items-center justify-between gap-3">
+					<div className="background-light800_dark400 w-fit rounded-sm px-5 py-1.5">
+						<p className="paragraph-semibold text-dark300_light900">{name}</p>
+					</div>
+					<i className={cn(iconsClass, "text-2xl")} aria-hidden="true">
+						<p className="small-regular text-dark500_light700 mt-5 line-clamp-3 w-full">
+							{iconDescription}
+						</p>
+					</i>
+				</div>
+			</article>
+		</Link>
+	)
 }
 
 export default TagCard
