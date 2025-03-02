@@ -1,43 +1,43 @@
-"use client"
-import { Button } from "@/components/ui/button"
-import { formUrlQuery, removeKeysFromQuery } from "@/lib/url"
-import { cn } from "@/lib/utils"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import React, { useState } from "react"
+"use client";
+import { Button } from "@/components/ui/button";
+import { formUrlQuery, removeKeysFromQuery } from "@/lib/url";
+import { cn } from "@/lib/utils";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
 
 const filters = [
 	{ name: "Newest", value: "newest" },
 	{ name: "Popular", value: "popular" },
 	{ name: "Unanswered", value: "unanswered" },
 	{ name: "Recommended", value: "recommended" },
-]
+];
 const HomeFilter = () => {
-	const pathname = usePathname()
-	const router = useRouter()
-	const searchParams = useSearchParams()
-	const filterParams = searchParams.get("filter")
-	const [active, setActive] = useState(filterParams || "")
+	const pathname = usePathname();
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const filterParams = searchParams.get("filter");
+	const [active, setActive] = useState(filterParams || "");
 
 	const handleTypeClick = (filter: string) => {
-		let newUrl = ""
+		let newUrl = "";
 		if (filter === active) {
-			setActive("")
+			setActive("");
 			newUrl = removeKeysFromQuery({
 				params: searchParams.toString(),
 				keysToRemove: ["filter"],
-			})
+			});
 		} else {
-			setActive(filter)
+			setActive(filter);
 			newUrl = formUrlQuery({
 				params: searchParams.toString(),
 				key: "filter",
 				value: filter.toLocaleLowerCase(),
-			})
+			});
 		}
-		router.push(`${pathname}?${newUrl}`)
-	}
+		router.push(`${pathname}?${newUrl}`);
+	};
 	return (
-		<div className="mt-10 hidden flex-wrap gap-3 md:flex">
+		<div className='mt-10 hidden flex-wrap gap-3 md:flex'>
 			{filters.map((filter) => (
 				<Button
 					key={filter.name}
@@ -53,7 +53,7 @@ const HomeFilter = () => {
 				</Button>
 			))}
 		</div>
-	)
-}
+	);
+};
 
-export default HomeFilter
+export default HomeFilter;
