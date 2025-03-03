@@ -80,3 +80,10 @@ interface Answer {
 	upvotes: number
 	downvotes: number
 }
+
+
+interface Collection {
+	_id: string
+	question: Question
+	author: string | Author
+}
