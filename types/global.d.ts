@@ -1,102 +1,119 @@
 interface Tag {
-	_id: string
-	name: string
+	_id: string;
+	name: string;
 }
 
 interface Author {
-	_id: string
-	name: string
-	image: string
+	_id: string;
+	name: string;
+	image: string;
 }
 
 interface Question {
-	_id: string
-	title: string
-	content: string
-	tags: Tag[]
-	author: Author
-	createdAt: Date
-	upvotes: number
-	downvotes: number
-	answers: number
-	views: number
-	createdAt: Date
+	_id: string;
+	title: string;
+	content: string;
+	tags: Tag[];
+	author: Author;
+	createdAt: Date;
+	upvotes: number;
+	downvotes: number;
+	answers: number;
+	views: number;
+	createdAt: Date;
 }
 
 type ActionResponse<T = null> = {
-	success: boolean
-	data?: T
+	success: boolean;
+	data?: T;
 	error?: {
-		message: string
-		details?: Record<string, string[]>
-	}
-	status?: number
-}
+		message: string;
+		details?: Record<string, string[]>;
+	};
+	status?: number;
+};
 
-type SuccessResponse<T = null> = ActionResponse<T> & { success: true }
-type ErrorResponse = ActionResponse<undefined> & { success: false }
+type SuccessResponse<T = null> = ActionResponse<T> & { success: true };
+type ErrorResponse = ActionResponse<undefined> & { success: false };
 
-type APIErrorResponse = NextResponse<ErrorResponse>
-type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>
+type APIErrorResponse = NextResponse<ErrorResponse>;
+type APIResponse<T = null> = NextResponse<SuccessResponse<T> | ErrorResponse>;
 
 interface RouteParams {
-	params: Promise<Record<string, string>>
-	searchParams: Promise<Record<string, string>>
+	params: Promise<Record<string, string>>;
+	searchParams: Promise<Record<string, string>>;
 }
 
 interface PaginatedSearchParams {
-	page?: number
-	pageSize?: number
-	query?: string
-	filter?: string
-	sort?: string
+	page?: number;
+	pageSize?: number;
+	query?: string;
+	filter?: string;
+	sort?: string;
 }
 
 interface Answer {
-	_id: string
-	author: Author
-	content: string
-	createdAt: Date
+	_id: string;
+	author: Author;
+	content: string;
+	createdAt: Date;
 }
 
 interface RouteParams {
-	params: Promise<Record<string, string>>
-	searchParams: Promise<Record<string, string>>
+	params: Promise<Record<string, string>>;
+	searchParams: Promise<Record<string, string>>;
 }
 
 interface PaginatedSearchParams {
-	page?: number
-	pageSize?: number
-	query?: string
-	filter?: string
-	sort?: string
+	page?: number;
+	pageSize?: number;
+	query?: string;
+	filter?: string;
+	sort?: string;
 }
 
 interface Answer {
-	_id: string
-	content: string
-	author: Author
-	createdAt: Date
-	upvotes: number
-	downvotes: number
+	_id: string;
+	content: string;
+	author: Author;
+	createdAt: Date;
+	upvotes: number;
+	downvotes: number;
 }
-
 
 interface Collection {
-	_id: string
-	question: Question
-	author: string | Author
+	_id: string;
+	question: Question;
+	author: string | Author;
 }
 
 interface User {
-	_id: string
-	name: string
-	username: string
-	email: string
-	bio?:string;
-	image?: string
-	location?: string
-	portfolio?: string
-	reputation?: number
+	_id: string;
+	name: string;
+	username: string;
+	email: string;
+	bio?: string;
+	image?: string;
+	location?: string;
+	portfolio?: string;
+	reputation?: number;
+}
 
+interface User {
+	_id: string;
+	name: string;
+	username: string;
+	email: string;
+	bio?: string;
+	image?: string;
+	location?: string;
+	portfolio?: string;
+	reputation?: number;
+	createdAt: Date;
+}
+
+interface BadgeCounts {
+	GOLD: number;
+	SILVER: number;
+	BRONZE: number;
 }
