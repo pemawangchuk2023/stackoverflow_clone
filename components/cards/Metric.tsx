@@ -1,18 +1,18 @@
-import { cn } from "@/lib/utils"
-import Image from "next/image"
-import Link from "next/link"
-import React from "react"
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
 
 interface Props {
-	imgUrl: string
-	alt: string
-	value: string | number
-	title: string
-	href?: string
-	textStyles: string
-	imgStyles?: string
-	isAuthor?: boolean
-	titleStyles?: string
+	imgUrl: string;
+	alt: string;
+	value: string | number;
+	title: string;
+	href?: string;
+	textStyles: string;
+	imgStyles?: string;
+	isAuthor?: boolean;
+	titleStyles?: string;
 }
 
 const Metric = ({
@@ -27,7 +27,7 @@ const Metric = ({
 	titleStyles,
 }: Props) => {
 	const metricContent = (
-		<div className="flex items-center gap-1">
+		<div className='flex items-center gap-1'>
 			<Image
 				src={imgUrl}
 				width={16}
@@ -44,14 +44,14 @@ const Metric = ({
 				) : null}
 			</p>
 		</div>
-	)
+	);
 	return href ? (
-		<Link href={href} className="flex-center gap-1">
+		<Link href={href} className='flex-center gap-1'>
 			{metricContent}
 		</Link>
 	) : (
-		<div className="flex-center gap-1">{metricContent}</div>
-	)
-}
+		<div className='flex-center gap-1'>{metricContent}</div>
+	);
+};
 
-export default Metric
+export default Metric;

@@ -3,7 +3,9 @@ import ROUTES from "@/constants/routes";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { getHotQuestions, getHotTags } from "@/lib/actions/question.action";
+import { getHotQuestions } from "@/lib/actions/question.action";
+import { QuestionIcon } from "@/components/QuestionIcon";
+import { getHotTags } from "@/lib/actions/tag.action";
 
 const RightSidebar = async () => {
 	const hotQuestions = await getHotQuestions();
@@ -40,6 +42,7 @@ const RightSidebar = async () => {
 								href={`${ROUTES.QUESTION(_id)}`}
 								className='flex cursor-pointer items-center justify-between gap-7'
 							>
+								<QuestionIcon id={_id} />
 								<p className='body-medium text-dark500_light700'>{title}</p>
 								<Image
 									src='/icons/chevron-right.svg'

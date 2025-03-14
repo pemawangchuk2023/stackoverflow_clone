@@ -5,6 +5,7 @@ import TagQuestion from "@/database/tag-question.model";
 import Tag, { ITagDoc } from "@/database/tag.model";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
+import dbConnect from "@/lib/mongoose";
 import {
 	AskQuestionSchema,
 	EditQuestionSchema,
@@ -313,35 +314,14 @@ export async function getHotQuestions(): Promise<
 	ActionResponse<{ questions: Question[] }>
 > {
 	try {
+		await dbConnect();
 		const hotQuestions = await Question.find({})
 			.sort({ views: -1, upvotes: -1 })
-			.limit(5)
-			.select("title _id");
+			.limit(5);
 
 		return {
 			success: true,
 			data: { questions: JSON.parse(JSON.stringify(hotQuestions)) },
-		};
-	} catch (error) {
-		return handleError(error) as ErrorResponse;
-	}
-}
-
-export async function getHotTags(): Promise<
-	ActionResponse<{ tags: ITagDoc[] }>
-> {
-	try {
-		const hotTags = await Tag.find({})
-			.sort({ questions: -1 })
-			.limit(5)
-			.select("name _id questions")
-			.lean();
-
-		return {
-			success: true,
-			data: {
-				tags: JSON.parse(JSON.stringify(hotTags)),
-			},
 		};
 	} catch (error) {
 		return handleError(error) as ErrorResponse;

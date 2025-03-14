@@ -1,4 +1,4 @@
-import ROUTES from "./routes"
+import ROUTES from "./routes";
 
 export const DEFAULT_EMPTY = {
 	title: "No Data Found",
@@ -8,7 +8,7 @@ export const DEFAULT_EMPTY = {
 		text: "Add Data",
 		href: ROUTES.HOME,
 	},
-}
+};
 
 export const DEFAULT_ERROR = {
 	title: "Something Went Wrong",
@@ -17,7 +17,7 @@ export const DEFAULT_ERROR = {
 		text: "Retry Request",
 		href: ROUTES.HOME,
 	},
-}
+};
 
 export const EMPTY_QUESTION = {
 	title: "Ahh, No Questions Yet!",
@@ -27,7 +27,7 @@ export const EMPTY_QUESTION = {
 		text: "Ask a Question",
 		href: ROUTES.ASK_QUESTION,
 	},
-}
+};
 
 export const EMPTY_TAGS = {
 	title: "No Tags Found",
@@ -36,7 +36,7 @@ export const EMPTY_TAGS = {
 		text: "Create Tag",
 		href: ROUTES.TAGS,
 	},
-}
+};
 
 export const EMPTY_COLLECTIONS = {
 	title: "Collections Are Empty",
@@ -46,9 +46,15 @@ export const EMPTY_COLLECTIONS = {
 		text: "Save to Collection",
 		href: ROUTES.COLLECTION,
 	},
-}
+};
 
 export const EMPTY_ANSWERS = {
 	title: "No answers found",
 	message: "The answer board is empty. Make it rain with your brilliant answer",
-}
+};
+
+export const EMPTY_USERS = {
+	title: "No Users Found",
+	message:
+		"It's ALONE in the world. You're the only one here. Join us and let the world know who you are.",
+};
