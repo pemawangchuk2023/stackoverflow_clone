@@ -1,14 +1,12 @@
 "use server";
 
 import { FilterQuery } from "mongoose";
+
+import { Answer, Question, User } from "@/database";
+
 import action from "../handlers/action";
 import handleError from "../handlers/error";
-import {
-	GetUserQuestionsSchema,
-	GetUserSchema,
-	PaginatedSearchParamsSchema,
-} from "../validations";
-import { Answer, Question, User } from "@/database";
+import { GetUserSchema, PaginatedSearchParamsSchema } from "../validations";
 
 export async function getUsers(
 	params: PaginatedSearchParams
@@ -17,6 +15,7 @@ export async function getUsers(
 		params,
 		schema: PaginatedSearchParamsSchema,
 	});
+
 	if (validationResult instanceof Error) {
 		return handleError(validationResult) as ErrorResponse;
 	}
@@ -48,7 +47,7 @@ export async function getUsers(
 			sortCriteria = { reputation: -1 };
 			break;
 		default:
-			sortCriteria = { reputation: -1 };
+			sortCriteria = { createdAt: -1 };
 			break;
 	}
 
@@ -61,6 +60,7 @@ export async function getUsers(
 			.limit(limit);
 
 		const isNext = totalUsers > skip + users.length;
+
 		return {
 			success: true,
 			data: {
@@ -73,10 +73,12 @@ export async function getUsers(
 	}
 }
 
-export async function getUser(
-	params: GetUserParams
-): Promise<
-	ActionResponse<{ user: User; totalQuestions: number; totalAnswers: number }>
+export async function getUser(params: GetUserParams): Promise<
+	ActionResponse<{
+		user: User;
+		totalQuestions: number;
+		totalAnswers: number;
+	}>
 > {
 	const validationResult = await action({
 		params,
@@ -91,11 +93,10 @@ export async function getUser(
 
 	try {
 		const user = await User.findById(userId);
-		if (!user) {
-			throw new Error("User not found");
-		}
-		const totalQuestions = await Question.countDocuments({ author: userId });
 
+		if (!user) throw new Error("User not found");
+
+		const totalQuestions = await Question.countDocuments({ author: userId });
 		const totalAnswers = await Answer.countDocuments({ author: userId });
 
 		return {
@@ -111,9 +112,12 @@ export async function getUser(
 	}
 }
 
-export async function getUserQuestions(
-	params: GetUserQuestionsParams
-): Promise<ActionResponse<{ questions: Question[]; isNext: boolean }>> {
+export async function getUserQuestions(params: GetUserQuestionsParams): Promise<
+	ActionResponse<{
+		questions: Question[];
+		isNext: boolean;
+	}>
+> {
 	const validationResult = await action({
 		params,
 		schema: GetUserSchema,
@@ -123,7 +127,7 @@ export async function getUserQuestions(
 		return handleError(validationResult) as ErrorResponse;
 	}
 
-	const { userId, page = 1, pageSize = 3 } = params;
+	const { userId, page = 1, pageSize = 10 } = params;
 
 	const skip = (Number(page) - 1) * pageSize;
 	const limit = pageSize;
@@ -143,6 +147,48 @@ export async function getUserQuestions(
 			success: true,
 			data: {
 				questions: JSON.parse(JSON.stringify(questions)),
+				isNext,
+			},
+		};
+	} catch (error) {
+		return handleError(error) as ErrorResponse;
+	}
+}
+
+export async function getUsersAnswers(params: GetUserAnswersParams): Promise<
+	ActionResponse<{
+		answers: Answer[];
+		isNext: boolean;
+	}>
+> {
+	const validationResult = await action({
+		params,
+		schema: GetUserSchema,
+	});
+
+	if (validationResult instanceof Error) {
+		return handleError(validationResult) as ErrorResponse;
+	}
+
+	const { userId, page = 1, pageSize = 10 } = params;
+
+	const skip = (Number(page) - 1) * pageSize;
+	const limit = pageSize;
+
+	try {
+		const totalAnswers = await Answer.countDocuments({ author: userId });
+
+		const answers = await Answer.find({ author: userId })
+			.populate("author", "_id name image")
+			.skip(skip)
+			.limit(limit);
+
+		const isNext = totalAnswers > skip + answers.length;
+
+		return {
+			success: true,
+			data: {
+				answers: JSON.parse(JSON.stringify(answers)),
 				isNext,
 			},
 		};

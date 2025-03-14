@@ -79,6 +79,8 @@ interface Answer {
 	createdAt: Date;
 	upvotes: number;
 	downvotes: number;
+	question: string;
+	containerClasses: string;
 }
 
 interface Collection {
