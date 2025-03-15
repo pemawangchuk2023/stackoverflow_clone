@@ -80,7 +80,7 @@ interface Answer {
 	upvotes: number;
 	downvotes: number;
 	question: string;
-
+}
 interface Collection {
 	_id: string;
 	question: Question;
