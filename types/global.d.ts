@@ -80,8 +80,6 @@ interface Answer {
 	upvotes: number;
 	downvotes: number;
 	question: string;
-	containerClasses: string;
-}
 
 interface Collection {
 	_id: string;

@@ -47,7 +47,6 @@ const ProfileDetailsPage = async ({ params, searchParams }: RouteParams) => {
 	});
 
 	// Answers Part
-
 	const {
 		success: userAnswersSuccess,
 		data: userAnswers,
@@ -57,6 +56,7 @@ const ProfileDetailsPage = async ({ params, searchParams }: RouteParams) => {
 		page: Number(page) || 1,
 		pageSize: Number(pageSize) || 10,
 	});
+
 	// Tags
 
 	const {
