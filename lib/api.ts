@@ -1,11 +1,12 @@
-import ROUTES from "@/constants/routes"
-import { IAccount } from "@/database/account.model"
-import { IUser } from "@/database/user.model"
+import ROUTES from "@/constants/routes";
+import { IAccount } from "@/database/account.model";
+import { IUser } from "@/database/user.model";
 
-import { fetchHandler } from "./handlers/fetch"
+import { fetchHandler } from "./handlers/fetch";
 
 const API_BASE_URL =
-	process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api"
+	process.env.NEXT_PUBLIC_API_BASE_URL ||
+	"'https://stackoverflow-clone-six-ebon.vercel.app/api'";
 export const api = {
 	auth: {
 		oAuthSignIn: ({
@@ -16,7 +17,7 @@ export const api = {
 			return fetchHandler(`${API_BASE_URL}/auth/${ROUTES.SIGN_IN_WITH_OAUTH}`, {
 				method: "POST",
 				body: JSON.stringify({ user, provider, providerAccountId }),
-			})
+			});
 		},
 	},
 	users: {
@@ -76,4 +77,4 @@ export const api = {
 				body: JSON.stringify({ question, content }),
 			}),
 	},
-}
+};
