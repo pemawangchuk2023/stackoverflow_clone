@@ -4,6 +4,7 @@ import { Answer, Question, User } from "@/database";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
 import { GetUserSchema, PaginatedSearchParamsSchema } from "../validations";
+
 export async function getUsers(
 	params: PaginatedSearchParams
 ): Promise<ActionResponse<{ users: User[]; isNext: boolean }>> {

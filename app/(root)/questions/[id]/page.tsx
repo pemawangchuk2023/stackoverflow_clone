@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import AllAnswers from "@/components/answers/AllAnswers";
 import Metric from "@/components/cards/Metric";
 import TagCard from "@/components/cards/TagCard";
@@ -17,6 +18,11 @@ import { redirect } from "next/navigation";
 import React, { Suspense } from "react";
 
 const QuestionDetailsPage = async ({ params, searchParams }: RouteParams) => {
+	const session = await auth();
+	if (!session?.user) {
+		return redirect("/sign-up");
+	}
+
 	const { id } = await params;
 
 	const { page, pageSize = 2, filter } = await searchParams;
