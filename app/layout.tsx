@@ -13,6 +13,17 @@ export const metadata: Metadata = {
 	icons: {
 		icon: "/images/logo.png",
 	},
+	keywords: [
+		"programming",
+		"web development",
+		"Q&A",
+		"developers",
+		"tech help",
+	],
+	authors: [
+		{ name: "Pema", url: "https://pemawangchuk.pro" },
+		{ name: "StackOverflow Clone" },
+	],
 }
 
 const RootLayout = async ({
