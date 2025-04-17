@@ -3,9 +3,10 @@ import ROUTES from "@/constants/routes";
 import Link from "next/link";
 import React, { Suspense } from "react";
 import { cn, getTimeStamp } from "../../lib/utils";
-import Preview from "@/components/editor/Preview";
 import Votes from "@/components/votes/Votes";
 import { hasVoted } from "@/lib/actions/vote.action";
+import Preview from "@/components/editor/Preview";
+
 
 interface Props extends Answer {
 	containerClasses?: string;

@@ -8,8 +8,12 @@ Code.theme = {
 }
 
 const Preview = ({ content }: { content: string }) => {
-	const formattedContent = content.replace(/\\/g, "").replace(/&#x20;/g, "")
-
+	const escapeMDXChars = (md: string) =>
+		md.replace(/(?<!\\)</g, "\\<").replace(/(?<!\\)>/g, "\\>");
+	  
+	  const formattedContent = escapeMDXChars(
+		content.replace(/\\/g, "").replace(/&#x20;/g, "")
+	  );
 	return (
 		<section className="markdown prose grid break-words">
 			<MDXRemote

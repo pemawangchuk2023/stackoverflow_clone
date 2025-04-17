@@ -25,7 +25,7 @@ const Navbar = async () => {
 					<span className="text-primary-500"> Clone</span>
 				</p>
 			</Link>
-			<p>GlobalSearch</p>
+			<p>Global Search</p>
 			<div className="flex-between gap-5">
 				<ThemeToggle />
 				{session?.user?.id && (
