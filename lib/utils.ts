@@ -1,11 +1,11 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-import { techMap } from "@/constants/techMap"
-import { BADGE_CRITERIA } from "@/constants"
+import { techMap } from "@/constants/techMap";
+import { BADGE_CRITERIA } from "@/constants";
 
 export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs))
+	return twMerge(clsx(inputs));
 }
 
 export const techDescriptionMap: { [key: string]: string } = {
@@ -34,28 +34,28 @@ export const techDescriptionMap: { [key: string]: string } = {
 	postgresql:
 		"PostgreSQL is a robust open-source relational database with advanced features and strong SQL compliance.",
 	aws: "AWS is a comprehensive cloud platform offering a wide range of services for deployment, storage, and more.",
-}
+};
 
 export const getTechDescription = (techName: string) => {
-	const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase()
+	const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
 	return techDescriptionMap[normalizedTechName]
 		? techDescriptionMap[normalizedTechName]
-		: `${techName} is a technology or tool widely used in web development, providing valuable features and capabilities.`
-}
+		: `${techName} is a technology or tool widely used in web development, providing valuable features and capabilities.`;
+};
 
 export const getDeviconClassName = (techName: string) => {
-	const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase()
+	const normalizedTechName = techName.replace(/[ .]/g, "").toLowerCase();
 
 	return techMap[normalizedTechName]
 		? `${techMap[normalizedTechName]} colored`
-		: "devicon-devicon-plain"
-}
+		: "devicon-devicon-plain";
+};
 
 export const getTimeStamp = (createdAt: Date) => {
-	const date = new Date(createdAt)
-	const now = new Date()
+	const date = new Date(createdAt);
+	const now = new Date();
 
-	const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000)
+	const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000);
 
 	const units = [
 		{ label: "year", seconds: 31536000 },
@@ -65,45 +65,75 @@ export const getTimeStamp = (createdAt: Date) => {
 		{ label: "hour", seconds: 3600 },
 		{ label: "minute", seconds: 60 },
 		{ label: "second", seconds: 1 },
-	]
+	];
 
 	for (const unit of units) {
-		const interval = Math.floor(secondsAgo / unit.seconds)
+		const interval = Math.floor(secondsAgo / unit.seconds);
 		if (interval >= 1) {
-			return `${interval} ${unit.label}${interval > 1 ? "s" : ""} ago`
+			return `${interval} ${unit.label}${interval > 1 ? "s" : ""} ago`;
 		}
 	}
-	return "just now"
-}
+	return "just now";
+};
 export const formatNumber = (number: number) => {
 	if (number >= 1000000) {
-		return (number / 1000000).toFixed(1) + "M"
+		return (number / 1000000).toFixed(1) + "M";
 	} else if (number >= 1000) {
-		return (number / 1000).toFixed(1) + "K"
+		return (number / 1000).toFixed(1) + "K";
 	} else {
-		return number.toString()
+		return number.toString();
 	}
-}
+};
 export function assignBadges(params: {
-	criteria: { type: keyof typeof BADGE_CRITERIA; count: number }[]
+	criteria: { type: keyof typeof BADGE_CRITERIA; count: number }[];
 }) {
 	const badgeCounts: Badges = {
 		GOLD: 0,
 		SILVER: 0,
 		BRONZE: 0,
-	}
+	};
 
-	const { criteria } = params
+	const { criteria } = params;
 
 	criteria.forEach((item) => {
-		const { type, count } = item
-		const badgeLevels = BADGE_CRITERIA[type]
+		const { type, count } = item;
+		const badgeLevels = BADGE_CRITERIA[type];
 
 		Object.keys(badgeLevels).forEach((level) => {
 			if (count >= badgeLevels[level as keyof typeof badgeLevels]) {
-				badgeCounts[level as keyof Badges] += 1
+				badgeCounts[level as keyof Badges] += 1;
 			}
-		})
-	})
-	return badgeCounts
+		});
+	});
+	return badgeCounts;
+}
+
+export function processJobTitle(title: string | undefined | null): string {
+	// Check if title is undefined or null
+	if (title === undefined || title === null) {
+		return "No Job Title";
+	}
+
+	// Split the title into words
+	const words = title.split(" ");
+
+	// Filter out undefined or null and other unwanted words
+	const validWords = words.filter((word) => {
+		return (
+			word !== undefined &&
+			word !== null &&
+			word.toLowerCase() !== "undefined" &&
+			word.toLowerCase() !== "null"
+		);
+	});
+
+	// If no valid words are left, return the general title
+	if (validWords.length === 0) {
+		return "No Job Title";
+	}
+
+	// Join the valid words to create the processed title
+	const processedTitle = validWords.join(" ");
+
+	return processedTitle;
 }
