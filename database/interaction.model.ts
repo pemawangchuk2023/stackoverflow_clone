@@ -1,4 +1,4 @@
-import { model, models, Schema, Types } from "mongoose"
+import { model, models, Schema, Types } from "mongoose";
 
 export const InteractionActionEnums = [
 	"view",
@@ -9,12 +9,12 @@ export const InteractionActionEnums = [
 	"edit",
 	"delete",
 	"search",
-] as const
+] as const;
 export interface IInteraction {
-	user: Types.ObjectId
-	action: string
-	actionId: Types.ObjectId
-	actionType: "question" | "answer"
+	user: Types.ObjectId;
+	action: string;
+	actionId: Types.ObjectId;
+	actionType: "question" | "answer";
 }
 const InteractionSchema = new Schema<IInteraction>(
 	{
@@ -26,7 +26,7 @@ const InteractionSchema = new Schema<IInteraction>(
 	{
 		timestamps: true,
 	}
-)
+);
 const Interaction =
-	models?.Interaction || model<IInteraction>("Interaction", InteractionSchema)
-export default Interaction
+	models?.Interaction || model<IInteraction>("Interaction", InteractionSchema);
+export default Interaction;

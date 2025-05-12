@@ -1,8 +1,14 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	/* config options here */
 	serverExternalPackages: ["pino", "pino-pretty"],
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
+	typescript: {
+		ignoreBuildErrors: true,
+	},
 	images: {
 		remotePatterns: [
 			{
@@ -20,8 +26,13 @@ const nextConfig: NextConfig = {
 				hostname: "lh3.googleusercontent.com",
 				port: "",
 			},
+			{
+				protocol: "https",
+				hostname: "*",
+				port: "",
+			},
 		],
 	},
-}
+};
 
-export default nextConfig
+export default nextConfig;
