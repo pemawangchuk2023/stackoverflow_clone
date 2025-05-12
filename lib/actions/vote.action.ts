@@ -1,5 +1,5 @@
 "use server"
-
+import { after } from "next/server"
 import ROUTES from "@/constants/routes"
 import { Answer, Question, Vote } from "@/database"
 import action from "@/lib/handlers/action"
@@ -9,8 +9,15 @@ import {
 	HasVotedSchema,
 	UpdateVoteCountSchema,
 } from "@/lib/validations"
+import {
+	CreateVoteParams,
+	HasVotedParams,
+	HasVotedResponse,
+	UpdateVoteCountParams,
+} from "@/types/action"
 import mongoose, { ClientSession } from "mongoose"
 import { revalidatePath } from "next/cache"
+import { createInteraction } from "@/lib/actions/interaction.action"
 
 export async function updateVoteCount(
 	params: UpdateVoteCountParams,
@@ -68,6 +75,11 @@ export async function createVote(
 	session.startTransaction()
 
 	try {
+		const Model = targetType === "question" ? Question : Answer
+		const contentDoc = await Model.findById(targetId).session(session)
+		if (!contentDoc) throw new Error("The content was not found")
+		const contentAuthorId = contentDoc.author.toString()
+
 		const existingVote = await Vote.findOne({
 			author: userId,
 			actionId: targetId,
@@ -116,9 +128,19 @@ export async function createVote(
 				session
 			)
 		}
+		// Log The Interaction
+		after(async () => {
+			await createInteraction({
+				action: voteType,
+				actionId: targetId,
+				actionTarget: targetType,
+				authorId: contentAuthorId,
+			})
+		})
 		await session.commitTransaction()
 		session.endSession()
-		revalidatePath(ROUTES.QUESTION(targetId))
+
+		revalidatePath(`/question/${targetId}`)
 		return { success: true }
 	} catch (error) {
 		await session.abortTransaction()

@@ -14,6 +14,8 @@ import {
 import Image from "next/image"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { deleteQuestion } from "@/lib/actions/question.action"
+import { deleteAnswer } from "@/lib/actions/answer.action"
 
 interface Props {
 	type: string
@@ -21,23 +23,25 @@ interface Props {
 }
 const EditDeleteAction = ({ type, itemId }: Props) => {
 	const router = useRouter()
-	const toast = useToast()
+	const { toast } = useToast()
 	const handleEdit = async () => {
 		router.push(`/questions/${itemId}/edit`)
 	}
 	const handleDelete = async () => {
-		// Call API to delete the question
+		// Implement the server action to delete the question and its inner content
 		if (type === "Question") {
-			// Call API to delete the question
+			await deleteQuestion({ questionId: itemId })
 			toast({
 				title: "Question Deleted",
 				description: "Your question has been deleted successfully",
+				variant: "destructive",
 			})
 		} else if (type === "answer") {
-			// Call API to delete answer
+			await deleteAnswer({ answerId: itemId })
 			toast({
 				title: "Answer Deleted",
 				description: "Your answer has been deleted successfully",
+				variant: "destructive",
 			})
 		}
 	}
@@ -64,8 +68,10 @@ const EditDeleteAction = ({ type, itemId }: Props) => {
 						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 						<AlertDialogDescription>
 							This action cannot be undone. This will permanently delete your
-							{type === "Question" ? "question" : "answer"} and remove it from
-							the servers
+							<span className="ml-1">
+								{type === "Question" ? "question" : "answer"}
+							</span>{" "}
+							and remove it from the servers
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

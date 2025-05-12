@@ -3,7 +3,19 @@ import { FilterQuery, PipelineStage, Types } from "mongoose";
 import { Answer, Question, User } from "@/database";
 import action from "../handlers/action";
 import handleError from "../handlers/error";
-import { GetUserSchema, PaginatedSearchParamsSchema } from "../validations";
+import {
+	GetUserSchema,
+	PaginatedSearchParamsSchema,
+	UpdateUserSchema,
+} from "../validations";
+import {
+	GetUserAnswersParams,
+	GetUserParams,
+	GetUserQuestionsParams,
+	GetUserTagsParams,
+	UpdateUserParams,
+} from "@/types/action";
+import { assignBadges } from "@/lib/utils";
 
 export async function getUsers(
 	params: PaginatedSearchParams
@@ -57,9 +69,7 @@ export async function getUsers(
 }
 export async function getUser(
 	params: GetUserParams
-): Promise<
-	ActionResponse<{ user: User; totalQuestions: number; totalAnswers: number }>
-> {
+): Promise<ActionResponse<{ user: User }>> {
 	const validationResult = await action({ params, schema: GetUserSchema });
 	if (validationResult instanceof Error) {
 		return handleError(validationResult) as ErrorResponse;
@@ -68,14 +78,10 @@ export async function getUser(
 	try {
 		const user = await User.findById(userId);
 		if (!user) throw new Error("User not found");
-		const totalQuestions = await Question.countDocuments({ author: userId });
-		const totalAnswers = await Answer.countDocuments({ author: userId });
 		return {
 			success: true,
 			data: {
 				user: JSON.parse(JSON.stringify(user)),
-				totalQuestions,
-				totalAnswers,
 			},
 		};
 	} catch (error) {
@@ -163,6 +169,102 @@ export async function getUserTopTags(
 		];
 		const tags = await Question.aggregate(pipeline);
 		return { success: true, data: { tags: JSON.parse(JSON.stringify(tags)) } };
+	} catch (error) {
+		return handleError(error) as ErrorResponse;
+	}
+}
+
+export async function getUserStats(params: GetUserParams): Promise<
+	ActionResponse<{
+		totalQuestions: number;
+		totalAnswers: number;
+		badges: Badges;
+	}>
+> {
+	const validationResult = await action({
+		params,
+		schema: GetUserSchema,
+	});
+	if (validationResult instanceof Error) {
+		return handleError(validationResult) as ErrorResponse;
+	}
+
+	const { userId } = params;
+
+	try {
+		const [questionStats] = await Question.aggregate([
+			{ $match: { author: new Types.ObjectId(userId) } },
+			{
+				$group: {
+					_id: null,
+					count: { $sum: 1 },
+					upvotes: { $sum: "$upvotes" },
+					views: { $sum: "$views" },
+				},
+			},
+		]);
+		const [answerStats] = await Answer.aggregate([
+			{ $match: { author: new Types.ObjectId(userId) } },
+			{
+				$group: {
+					_id: null,
+					count: { $sum: 1 },
+					upvotes: { $sum: "$upvotes" },
+				},
+			},
+		]);
+
+		const badges = assignBadges({
+			criteria: [
+				{ type: "ANSWER_COUNT", count: answerStats.count },
+				{ type: "QUESTION_COUNT", count: questionStats.count },
+				{
+					type: "QUESTION_UPVOTES",
+					count: questionStats.upvotes + answerStats.upvotes,
+				},
+				{
+					type: "TOTAL_VIEWS",
+					count: questionStats.views,
+				},
+			],
+		});
+
+		return {
+			success: true,
+			data: {
+				totalQuestions: questionStats.count,
+				totalAnswers: answerStats.count,
+				badges,
+			},
+		};
+	} catch (error) {
+		return handleError(error) as ErrorResponse;
+	}
+}
+
+export async function updateUser(
+	params: UpdateUserParams
+): Promise<ActionResponse<{ user: User }>> {
+	const validationResult = await action({
+		params,
+		schema: UpdateUserSchema,
+		authorize: true,
+	});
+
+	if (validationResult instanceof Error) {
+		return handleError(validationResult) as ErrorResponse;
+	}
+
+	const { user } = validationResult.session!;
+
+	try {
+		const updatedUser = await User.findByIdAndUpdate(user?.id, params, {
+			new: true,
+		});
+		return {
+			success: true,
+			data: { user: JSON.parse(JSON.stringify(updatedUser)) },
+		};
 	} catch (error) {
 		return handleError(error) as ErrorResponse;
 	}

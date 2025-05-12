@@ -1,20 +1,33 @@
 "use server"
-
+import { after } from "next/server"
+import { Answer, Collection, Interaction, Vote } from "@/database"
 import Question from "@/database/question.model"
 import TagQuestion from "@/database/tag-question.model"
 import Tag, { ITagDoc } from "@/database/tag.model"
+import { createInteraction } from "@/lib/actions/interaction.action"
 import action from "@/lib/handlers/action"
 import handleError from "@/lib/handlers/error"
 import dbConnect from "@/lib/mongoose"
 import {
 	AskQuestionSchema,
+	DeleteQuestionSchema,
 	EditQuestionSchema,
 	GetQuestionSchema,
 	IncrementViewSchema,
 	PaginatedSearchParamsSchema,
 } from "@/lib/validations"
-import mongoose, { FilterQuery } from "mongoose"
+import {
+	CreateQuestionParams,
+	DeleteQuestionParams,
+	EditQuestionParams,
+	GetQuestionParams,
+	IncrementViewsParams,
+	RecommendationParams,
+} from "@/types/action"
+import mongoose, { FilterQuery, Types } from "mongoose"
+import { revalidatePath } from "next/cache"
 import { cache } from "react"
+import { auth } from "@/auth"
 
 export async function createQuestion(
 	params: CreateQuestionParams
@@ -69,9 +82,19 @@ export async function createQuestion(
 			},
 			{ session }
 		)
+		// Log The Interaction
+		after(async () => {
+			await createInteraction({
+				action: "post",
+				actionId: question._id.toString(),
+				actionTarget: "question",
+				authorId: userId as string,
+			})
+		})
 		await session.commitTransaction()
 		return { success: true, data: JSON.parse(JSON.stringify(question)) }
 	} catch (error) {
+		await session.abortTransaction()
 		return handleError(error) as ErrorResponse
 	} finally {
 		session.endSession()
@@ -228,37 +251,48 @@ export async function getQuestions(
 	const limit = Number(pageSize)
 
 	const filterQuery: FilterQuery<typeof Question> = {}
-
-	if (filter === "recommended") {
-		return { success: true, data: { questions: [], isNext: false } }
-	}
-
-	if (query) {
-		filterQuery.$or = [
-			{ title: { $regex: new RegExp(query, "i") } },
-			{ content: { $regex: new RegExp(query, "i") } },
-		]
-	}
-
 	let sortCriteria = {}
 
-	switch (filter) {
-		case "newest":
-			sortCriteria = { createdAt: -1 }
-			break
-		case "unanswered":
-			filterQuery.answers = 0
-			sortCriteria = { createdAt: -1 }
-			break
-		case "popular":
-			sortCriteria = { upvotes: -1 }
-			break
-		default:
-			sortCriteria = { createdAt: -1 }
-			break
-	}
-
 	try {
+		if (filter === "recommended") {
+			const session = await auth()
+			const userId = session?.user?.id
+			if (!userId) {
+				return { success: true, data: { questions: [], isNext: false } }
+			}
+
+			const recommended = await getRecommendationQuestions({
+				userId,
+				query,
+				skip,
+				limit,
+			})
+			return { success: true, data: recommended }
+		}
+
+		if (query) {
+			filterQuery.$or = [
+				{ title: { $regex: new RegExp(query, "i") } },
+				{ content: { $regex: new RegExp(query, "i") } },
+			]
+		}
+
+		switch (filter) {
+			case "newest":
+				sortCriteria = { createdAt: -1 }
+				break
+			case "unanswered":
+				filterQuery.answers = 0
+				sortCriteria = { createdAt: -1 }
+				break
+			case "popular":
+				sortCriteria = { upvotes: -1 }
+				break
+			default:
+				sortCriteria = { createdAt: -1 }
+				break
+		}
+
 		const totalQuestions = await Question.countDocuments(filterQuery)
 
 		const questions = await Question.find(filterQuery)
@@ -327,5 +361,145 @@ export async function getHotQuestions(): Promise<
 		}
 	} catch (error) {
 		return handleError(error) as ErrorResponse
+	}
+}
+// Write a function that deletes questions and its answer, its votes and collections
+
+export async function deleteQuestion(
+	params: DeleteQuestionParams
+): Promise<ActionResponse> {
+	const validationResult = await action({
+		params,
+		schema: DeleteQuestionSchema,
+		authorize: true,
+	})
+	if (validationResult instanceof Error) {
+		return handleError(validationResult) as ErrorResponse
+	}
+	// Destructure the questionID and user
+	const { questionId } = validationResult.params!
+	const { user } = validationResult.session!
+	// Create a Mongoose Session
+	const session = await mongoose.startSession()
+
+	try {
+		session.startTransaction()
+
+		const question = await Question.findById(questionId).session(session)
+		if (!question) throw new Error("The question was not found")
+
+		if (question.author.toString() !== user?.id)
+			throw new Error(
+				"You are not the author of the question, and hence not authorized to delete"
+			)
+		// 1. Delete the references of collections
+		await Collection.deleteMany({ question: questionId }).session(session)
+
+		// 2. Delete the references from TagQuestion collection
+		await TagQuestion.deleteMany({ question: questionId }).session(session)
+
+		// 3. Delete tags of question
+		if (question.tags.length > 0) {
+			await Tag.updateMany(
+				{ _id: { $in: question.tags } },
+				{ $inc: { questions: -1 } },
+				{ session }
+			)
+		}
+		// 4. Remove the votes part of the question
+		await Vote.deleteMany({
+			actionId: questionId,
+			actionType: "question",
+		}).session(session)
+
+		// 5. Remove all answers and its associates
+		const answers = await Answer.find({ question: questionId }).session(session)
+
+		if (answers.length > 0) {
+			await Answer.deleteMany({ question: questionId }).session(session)
+
+			await Vote.deleteMany({
+				actionId: { $in: answers.map((answer) => answer.id) },
+				actionType: "answer",
+			}).session(session)
+		}
+		// Now Delete the question
+		await Question.findByIdAndDelete(questionId).session(session)
+
+		// Commit the transaction
+		await session.commitTransaction()
+		session.endSession()
+
+		// Apply revalidate path to see instant changes at UI or frontend when question is deleted
+		revalidatePath(`/profile/${user?.id}`)
+		return { success: true }
+	} catch (error) {
+		await session.abortTransaction()
+		session.endSession()
+
+		return handleError(error) as ErrorResponse
+	}
+}
+export async function getRecommendationQuestions({
+	userId,
+	query,
+	skip,
+	limit,
+}: RecommendationParams) {
+	// 1. Get the user's recent interaction
+
+	const interactions = await Interaction.find({
+		user: new Types.ObjectId(userId),
+		actionType: "question",
+		actions: { $in: ["view", "upvote", "bookmark", "post"] },
+	})
+		.sort({ createdAt: -1 })
+		.limit(50)
+		.lean()
+
+	const interactedQuestionIds = interactions.map((i) => i.actionId)
+
+	// Get the tags from interacted questions
+
+	const interactedQuestions = await Question.find({
+		_id: { $in: interactedQuestionIds },
+	}).select("tags")
+
+	// Get the unique tags
+
+	const allTags = interactedQuestions.flatMap((q) =>
+		q.tags.map((tag: Types.ObjectId) => tag.toString())
+	)
+	// Remove the duplicates
+	const uniqueTagIds = [...new Set(allTags)]
+
+	const recommendedQuery: FilterQuery<typeof Question> = {
+		// Exclude the interacted questions
+		_id: { $nin: interactedQuestionIds },
+		// Exclude the user's own question
+		author: { $ne: new Types.ObjectId(userId) },
+		// Include the questions with other unique tags
+		tags: { $in: uniqueTagIds.map((id: string) => new Types.ObjectId(id)) },
+	}
+
+	if (query) {
+		recommendedQuery.$or = [
+			{ title: { $regex: query, $options: "i" } },
+			{ content: { $regex: query, $options: "i" } },
+		]
+	}
+
+	const total = await Question.countDocuments(recommendedQuery)
+
+	const questions = await Question.find(recommendedQuery)
+		.populate("tags", "name")
+		.populate("author", "name image")
+		.sort({ upvoted: -1, views: -1 })
+		.skip(skip)
+		.limit(limit)
+		.lean()
+	return {
+		questions: JSON.parse(JSON.stringify(questions)),
+		isNext: total > skip + questions.length,
 	}
 }

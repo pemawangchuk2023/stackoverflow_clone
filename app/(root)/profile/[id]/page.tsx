@@ -6,6 +6,7 @@ import {
 	getUsersAnswers,
 	getUserQuestions,
 	getUserTopTags,
+	getUserStats,
 } from "@/lib/actions/user.action"
 import { notFound } from "next/navigation"
 import React from "react"
@@ -33,7 +34,8 @@ const ProfileDetailsPage = async ({ params, searchParams }: RouteParams) => {
 	const { success, data, error } = await getUser({
 		userId: id,
 	})
-	const { user, totalQuestions, totalAnswers } = data!
+	const { user } = data!
+	const { data: userStats } = await getUserStats({ userId: id })
 
 	// Questions Part
 	const {
@@ -135,13 +137,14 @@ const ProfileDetailsPage = async ({ params, searchParams }: RouteParams) => {
 				</div>
 			</section>
 			<Stats
-				totalQuestions={totalQuestions}
-				totalAnswers={totalAnswers}
+				totalQuestions={userStats?.totalQuestions || 0}
+				totalAnswers={userStats?.totalAnswers || 0}
 				badges={{
 					GOLD: 0,
 					SILVER: 0,
 					BRONZE: 0,
 				}}
+				reputationPoints={user.reputation || 0}
 			/>
 			<section className="mt-10 flex gap-10">
 				<Tabs defaultValue="top-posts" className="flex-[2]">

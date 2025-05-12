@@ -1,20 +1,26 @@
 "use server";
 
-import Question from "@/database/question.model";
-import User from "@/database/user.model";
-import Answer from "@/database/answer.model";
-import Tag from "@/database/tag.model";
-import { SearchParams } from "@/types/shared.types";
-import dbConnect from "@/lib/mongoose";
+import { Answer, Question, Tag, User } from "@/database";
+import action from "@/lib/handlers/action";
+import handleError from "@/lib/handlers/error";
 
-const SearchableTypes = ["question", "answer", "user", "tag"];
+import { GlobalSearchSchema } from "@/lib/validations";
+import { GlobalSearchParams } from "@/types/action";
 
-export async function globalSearch(params: SearchParams) {
+export async function globalSearch(params: GlobalSearchParams) {
 	try {
-		dbConnect();
+		const validationResult = await action({
+			params,
+			schema: GlobalSearchSchema,
+		});
+
+		if (validationResult instanceof Error) {
+			return handleError(validationResult) as ErrorResponse;
+		}
 
 		const { query, type } = params;
 		const regexQuery = { $regex: query, $options: "i" };
+
 		let results = [];
 
 		const modelsAndTypes = [
@@ -25,8 +31,10 @@ export async function globalSearch(params: SearchParams) {
 		];
 
 		const typeLower = type?.toLowerCase();
+
+		const SearchableTypes = ["question", "answer", "user", "tag"];
 		if (!typeLower || !SearchableTypes.includes(typeLower)) {
-			// Search across all types
+			// If no type is specified, search in all models
 			for (const { model, searchField, type } of modelsAndTypes) {
 				const queryResults = await model
 					.find({ [searchField]: regexQuery })
@@ -44,27 +52,34 @@ export async function globalSearch(params: SearchParams) {
 				);
 			}
 		} else {
-			// Search within specified type
-			const modelInfo = modelsAndTypes.find((item) => item.type === typeLower);
-			if (!modelInfo) throw new Error("Invalid search type");
+			// Search in the specified model type
+			const modelInfo = modelsAndTypes.find((item) => item.type === type);
+
+			if (!modelInfo) {
+				throw new Error("Invalid search type");
+			}
 
 			const queryResults = await modelInfo.model
 				.find({ [modelInfo.searchField]: regexQuery })
-				.limit(6);
+				.limit(8);
 
 			results = queryResults.map((item) => ({
 				title:
-					typeLower === "answer"
+					type === "answer"
 						? `Answers containing ${query}`
 						: item[modelInfo.searchField],
-				type: typeLower,
-				id: typeLower === "answer" ? item.question : item._id,
+				type,
+				id: type === "answer" ? item.question : item._id,
 			}));
 		}
 
-		return JSON.stringify(results);
+		console.log(results);
+
+		return {
+			success: true,
+			data: JSON.parse(JSON.stringify(results)),
+		};
 	} catch (error) {
-		console.log(error);
-		throw error;
+		return handleError(error) as ErrorResponse;
 	}
 }

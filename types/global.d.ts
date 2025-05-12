@@ -117,3 +117,15 @@ interface BadgeCounts {
 	SILVER: number;
 	BRONZE: number;
 }
+
+interface Badges {
+	GOLD: number;
+	SILVER: number;
+	BRONZE: number;
+}
+
+interface GlobalSearchedItem {
+	id: string;
+	type: "question" | "answer" | "user" | "tag";
+	title: string;
+}
