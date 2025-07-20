@@ -1,23 +1,23 @@
-"use server"
-import { after } from "next/server"
-import ROUTES from "@/constants/routes"
-import { Question, Vote } from "@/database"
-import Answer, { IAnswerDoc } from "@/database/answer.model"
-import action from "@/lib/handlers/action"
-import handleError from "@/lib/handlers/error"
+"use server";
+import { after } from "next/server";
+import ROUTES from "@/constants/routes";
+import { Question, Vote } from "@/database";
+import Answer, { IAnswerDoc } from "@/database/answer.model";
+import action from "@/lib/handlers/action";
+import handleError from "@/lib/handlers/error";
 import {
 	AnswerServerSchema,
 	DeleteAnswerSchema,
 	GetAnswerSchema,
-} from "@/lib/validations"
+} from "@/lib/validations";
 import {
 	CreateAnswerParams,
 	DeleteAnswerParams,
 	GetAnswerParams,
-} from "@/types/action"
-import mongoose from "mongoose"
-import { revalidatePath } from "next/cache"
-import { createInteraction } from "@/lib/actions/interaction.action"
+} from "@/types/action";
+import mongoose from "mongoose";
+import { revalidatePath } from "next/cache";
+import { createInteraction } from "@/lib/actions/interaction.action";
 
 export async function createAnswer(
 	params: CreateAnswerParams
@@ -26,22 +26,22 @@ export async function createAnswer(
 		params,
 		schema: AnswerServerSchema,
 		authorize: true,
-	})
+	});
 	if (validationResult instanceof Error) {
-		return handleError(validationResult) as ErrorResponse
+		return handleError(validationResult) as ErrorResponse;
 	}
 
-	const { content, questionId } = validationResult.params!
+	const { content, questionId } = validationResult.params!;
 
-	const userId = validationResult?.session?.user?.id
+	const userId = validationResult?.session?.user?.id;
 
-	const session = await mongoose.startSession()
-	session.startTransaction()
+	const session = await mongoose.startSession();
+	session.startTransaction();
 
 	try {
-		const question = await Question.findById(questionId)
+		const question = await Question.findById(questionId);
 
-		if (!question) throw new Error("Question not found")
+		if (!question) throw new Error("Question not found");
 
 		const [newAnswer] = await Answer.create(
 			[
@@ -52,12 +52,12 @@ export async function createAnswer(
 				},
 			],
 			{ session }
-		)
+		);
 
-		if (!newAnswer) throw new Error("Failed to get an answer")
+		if (!newAnswer) throw new Error("Failed to get an answer");
 		// For update of questions answer count
-		question.answers += 1
-		await question.save({ session })
+		question.answers += 1;
+		await question.save({ session });
 
 		// Log The Interaction
 		after(async () => {
@@ -66,74 +66,74 @@ export async function createAnswer(
 				actionId: newAnswer._id.toString(),
 				actionTarget: "answer",
 				authorId: userId as string,
-			})
-		})
-		await session.commitTransaction()
-		revalidatePath(ROUTES.QUESTION(questionId))
-		return { success: true, data: JSON.parse(JSON.stringify(newAnswer)) }
+			});
+		});
+		await session.commitTransaction();
+		revalidatePath(ROUTES.QUESTION(questionId));
+		return { success: true, data: JSON.parse(JSON.stringify(newAnswer)) };
 	} catch (error) {
-		await session.abortTransaction()
-		return handleError(error) as ErrorResponse
+		await session.abortTransaction();
+		return handleError(error) as ErrorResponse;
 	} finally {
-		await session.endSession()
+		await session.endSession();
 	}
 }
 export async function getAnswers(params: GetAnswerParams): Promise<
 	ActionResponse<{
-		answers: Answer[]
-		isNext: boolean
-		totalAnswers: number
+		answers: Answer[];
+		isNext: boolean;
+		totalAnswers: number;
 	}>
 > {
 	const validationResult = await action({
 		params,
 		schema: GetAnswerSchema,
-	})
+	});
 
 	if (validationResult instanceof Error) {
-		return handleError(validationResult) as ErrorResponse
+		return handleError(validationResult) as ErrorResponse;
 	}
 
-	const { questionId, page = 1, pageSize = 10, filter } = params
+	const { questionId, page = 1, pageSize = 10, filter } = params;
 
-	const skip = (Number(page) - 1) * pageSize
+	const skip = (Number(page) - 1) * pageSize;
 
-	const limit = pageSize
+	const limit = pageSize;
 
-	let sortCriteria = {}
+	let sortCriteria = {};
 
 	switch (filter) {
 		case "latest":
 			sortCriteria = {
 				createdAt: -1,
-			}
-			break
+			};
+			break;
 		case "oldest":
 			sortCriteria = {
 				createdAt: 1,
-			}
-			break
+			};
+			break;
 		case "popular":
 			sortCriteria = {
 				upvotes: -1,
-			}
-			break
+			};
+			break;
 		default:
 			sortCriteria = {
 				createdAt: -1,
-			}
-			break
+			};
+			break;
 	}
 
 	try {
-		const totalAnswers = await Answer.countDocuments({ question: questionId })
+		const totalAnswers = await Answer.countDocuments({ question: questionId });
 		const answers = await Answer.find({ question: questionId })
 			.populate("author", "_id name image")
 			.sort(sortCriteria)
 			.skip(skip)
-			.limit(limit)
+			.limit(limit);
 
-		const isNext = totalAnswers > skip + answers.length
+		const isNext = totalAnswers > skip + answers.length;
 
 		return {
 			success: true,
@@ -142,9 +142,9 @@ export async function getAnswers(params: GetAnswerParams): Promise<
 				isNext,
 				totalAnswers,
 			},
-		}
+		};
 	} catch (error) {
-		return handleError(error) as ErrorResponse
+		return handleError(error) as ErrorResponse;
 	}
 }
 
@@ -155,33 +155,33 @@ export async function deleteAnswer(
 		params,
 		schema: DeleteAnswerSchema,
 		authorize: true,
-	})
+	});
 
 	if (validationResult instanceof Error) {
-		return handleError(validationResult) as ErrorResponse
+		return handleError(validationResult) as ErrorResponse;
 	}
 
-	const { answerId } = validationResult.params!
-	const { user } = validationResult.session!
+	const { answerId } = validationResult.params!;
+	const { user } = validationResult.session!;
 
 	try {
-		const answer = await Answer.findById(answerId)
-		if (!answer) throw new Error("The answer was not found")
+		const answer = await Answer.findById(answerId);
+		if (!answer) throw new Error("The answer was not found");
 
 		if (answer.author.toString() !== user?.id)
-			throw new Error("You are not allowed to delete this answer")
+			throw new Error("You are not allowed to delete this answer");
 		// Reduce the question answers count
 		await Question.findByIdAndUpdate(
 			answer.question,
 			{ $inc: { answers: -1 } },
 			{ new: true }
-		)
+		);
 		// Delete the votes associated with the answer
-		await Vote.deleteMany({ actionId: answerId, actionType: "answer" })
+		await Vote.deleteMany({ actionId: answerId, actionType: "answer" });
 
-		revalidatePath(`/profile/${user?.id}`)
-		return { success: true }
+		revalidatePath(`/profile/${user?.id}`);
+		return { success: true };
 	} catch (error) {
-		return handleError(error) as ErrorResponse
+		return handleError(error) as ErrorResponse;
 	}
 }

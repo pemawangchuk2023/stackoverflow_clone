@@ -15,6 +15,7 @@ const Page = async ({ searchParams }: RouteParams) => {
 		query: `${query}, ${location}` || `Software Engineer in ${userLocation}`,
 		page: page ?? 1,
 	});
+
 	const countries = await fetchCountries();
 	const parsedPage = parseInt(page ?? 1);
 
