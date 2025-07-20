@@ -22,8 +22,7 @@ const Navbar = async () => {
 					height={23}
 				/>
 				<p className='h2-bold font-space-grotesque text-dark-100 dark:text-light-900 max-sm:hidden'>
-					StackOverFlow
-					<span className='text-primary-500'> Clone</span>
+					SolutionHub
 				</p>
 			</Link>
 			<GlobalSearch />

@@ -1,6 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MDXEditorMethods } from "@mdxeditor/editor";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -12,16 +18,10 @@ import {
 	FormItem,
 	FormMessage,
 } from "@/components/ui/form";
-import { useRef, useState, useTransition } from "react";
-import { AnswerSchema } from "@/lib/validations";
-import dynamic from "next/dynamic";
-import { MDXEditorMethods } from "@mdxeditor/editor";
-import { ReloadIcon } from "@radix-ui/react-icons";
-import Image from "next/image";
+import { toast } from "@/hooks/use-toast";
 import { createAnswer } from "@/lib/actions/answer.action";
-import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
-import { useSession } from "next-auth/react";
+import { AnswerSchema } from "@/lib/validations";
 
 const Editor = dynamic(() => import("@/components/editor"), {
 	ssr: false,
@@ -32,18 +32,20 @@ interface Props {
 	questionTitle: string;
 	questionContent: string;
 }
+
 const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
-	const { toast } = useToast();
+	const [isAnswering, startAnsweringTransition] = useTransition();
+	const [isAISubmitting, setIsAISubmitting] = useState(false);
+	const session = useSession();
+
 	const editorRef = useRef<MDXEditorMethods>(null);
+
 	const form = useForm<z.infer<typeof AnswerSchema>>({
 		resolver: zodResolver(AnswerSchema),
 		defaultValues: {
 			content: "",
 		},
 	});
-	const [isAnswering, startAnsweringTransition] = useTransition();
-	const [isAiSubmitting, setIsAiSubmitting] = useState(false);
-	const session = useSession();
 
 	const handleSubmit = async (values: z.infer<typeof AnswerSchema>) => {
 		startAnsweringTransition(async () => {
@@ -51,33 +53,38 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 				questionId,
 				content: values.content,
 			});
+
 			if (result.success) {
 				form.reset();
+
 				toast({
 					title: "Success",
-					description: "The answer has been posted successfully",
+					description: "Your answer has been posted successfully",
 				});
+
 				if (editorRef.current) {
 					editorRef.current.setMarkdown("");
 				}
 			} else {
 				toast({
 					title: "Error",
-					description: "Went wrong, Try again.",
+					description: result.error?.message,
 					variant: "destructive",
 				});
 			}
 		});
 	};
 
-	const generateAiAnswer = async () => {
+	const generateAIAnswer = async () => {
 		if (session.status !== "authenticated") {
 			return toast({
 				title: "Please log in",
-				description: "You need to login in to use this feature",
+				description: "You need to be logged in to use this feature",
 			});
 		}
-		setIsAiSubmitting(true);
+
+		setIsAISubmitting(true);
+
 		const userAnswer = editorRef.current?.getMarkdown();
 
 		try {
@@ -86,6 +93,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 				questionContent,
 				userAnswer
 			);
+
 			if (!success) {
 				return toast({
 					title: "Error",
@@ -94,15 +102,18 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 				});
 			}
 
-			const formattedAnswer = data.replace(/<br >/g, "").toString().trim();
+			const formattedAnswer = data.replace(/<br>/g, " ").toString().trim();
+
 			if (editorRef.current) {
 				editorRef.current.setMarkdown(formattedAnswer);
+
 				form.setValue("content", formattedAnswer);
 				form.trigger("content");
 			}
+
 			toast({
 				title: "Success",
-				description: "Ai answer has been generated",
+				description: "AI generated answer has been generated",
 			});
 		} catch (error) {
 			toast({
@@ -114,21 +125,22 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 				variant: "destructive",
 			});
 		} finally {
-			setIsAiSubmitting(false);
+			setIsAISubmitting(false);
 		}
 	};
+
 	return (
-		<Form {...form}>
+		<div>
 			<div className='flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-2'>
 				<h4 className='paragraph-semibold text-dark400_light800'>
 					Write your answer here
 				</h4>
 				<Button
 					className='btn light-border-2 gap-1.5 rounded-md border px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500'
-					disabled={isAiSubmitting}
-					onClick={generateAiAnswer}
+					disabled={isAISubmitting}
+					onClick={generateAIAnswer}
 				>
-					{isAiSubmitting ? (
+					{isAISubmitting ? (
 						<>
 							<ReloadIcon className='mr-2 size-4 animate-spin' />
 							Generating...
@@ -147,7 +159,7 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 					)}
 				</Button>
 			</div>
-			<div>
+			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(handleSubmit)}
 					className='mt-6 flex w-full flex-col gap-10'
@@ -168,11 +180,9 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 							</FormItem>
 						)}
 					/>
+
 					<div className='flex justify-end'>
-						<Button
-							type='submit'
-							className='primary-gradient w-fit text-gray-50 '
-						>
+						<Button type='submit' className='primary-gradient w-fit'>
 							{isAnswering ? (
 								<>
 									<ReloadIcon className='mr-2 size-4 animate-spin' />
@@ -184,8 +194,9 @@ const AnswerForm = ({ questionId, questionTitle, questionContent }: Props) => {
 						</Button>
 					</div>
 				</form>
-			</div>
-		</Form>
+			</Form>
+		</div>
 	);
 };
+
 export default AnswerForm;
