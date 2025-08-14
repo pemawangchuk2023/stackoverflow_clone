@@ -6,12 +6,26 @@ import { Toaster } from "@/components/ui/toaster";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 import React from "react";
+import { Poppins, Space_Grotesk } from "next/font/google";
+import GlobalFooter from "@/components/global/GlobalFooter";
+
+const poppins = Poppins({
+	subsets: ["latin"],
+	weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+	variable: "--font-inter",
+});
+
+const spaceGrotesk = Space_Grotesk({
+	subsets: ["latin"],
+	weight: ["300", "400", "500", "600", "700"],
+	variable: "--font-spaceGrotesk",
+});
 
 export const metadata: Metadata = {
 	title: "SolutionHub",
-	description: "The Stack Overflow Clone",
+	description: "SolutionHub",
 	icons: {
-		icon: "/images/logo.png",
+		icon: "/images/logo2.png",
 	},
 	keywords: [
 		"programming",
@@ -19,10 +33,6 @@ export const metadata: Metadata = {
 		"Q&A",
 		"developers",
 		"tech help",
-	],
-	authors: [
-		{ name: "Pema", url: "https://pemawangchuk.pro" },
-		{ name: "SolutionHub" },
 	],
 };
 
@@ -41,7 +51,7 @@ const RootLayout = async ({
 					href='https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css'
 				/>
 			</head>
-			<body>
+			<body className={`${poppins.variable} ${spaceGrotesk.variable}`}>
 				<SessionProvider session={session}>
 					<ThemeProvider
 						attribute='class'
@@ -49,6 +59,7 @@ const RootLayout = async ({
 						disableTransitionOnChange
 					>
 						{children}
+						<GlobalFooter />
 					</ThemeProvider>
 					<Toaster />
 				</SessionProvider>

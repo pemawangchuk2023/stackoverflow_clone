@@ -31,8 +31,8 @@ const RightSidebar = async () => {
         overflow-y-auto border-l p-6 shadow-light-300 dark:shadow-none max-xl:hidden'
 		>
 			<div>
-				<h3 className='h3-bold text-dark200_light900 text-center items-center'>
-					Hot Questions
+				<h3 className='h3-bold text-dark200_light900 text-center items-center underline'>
+					Dev Talk of the Day
 				</h3>
 				<div className='mt-7 flex w-full flex-col gap-[30px]'>
 					{questions.length > 0 ? (

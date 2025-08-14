@@ -5,12 +5,12 @@ const ROUTES = {
 	ASK_QUESTION: "/ask-question",
 	COLLECTION: "/collection",
 	COMMUNITY: "/community",
+	CHAT: "/chat",
 	TAGS: "/tags",
-	JOBS: "/jobs",
 	PROFILE: (id: string) => `/profile/${id}`,
 	QUESTION: (id: string) => `/questions/${id}`,
 	TAG: (id: string) => `/tags/${id}`,
 	SIGN_IN_WITH_OAUTH: `signin-with-oauth`,
-}
+};
 
-export default ROUTES
+export default ROUTES;

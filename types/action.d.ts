@@ -131,7 +131,17 @@ interface UpdateUserParams {
 	image?: string;
 	password?: string;
 }
-interface JobFilterParams {
-	query: string;
-	page: string;
+
+export interface CreateChatMessageParams {
+	conversationId: string;
+	content: string;
+	role?: "user" | "assistant" | "system";
+	userId: string;
+}
+
+export interface GetChatMessagesParams {
+	conversationId: string;
+	page?: number;
+	pageSize?: number;
+	filter?: "latest" | "oldest";
 }

@@ -24,7 +24,7 @@ export const EMPTY_QUESTION = {
 	message:
 		"The question board is empty. Maybe it’s waiting for your brilliant question to get things rolling",
 	button: {
-		text: "Ask a Question",
+		text: "Start a Thread",
 		href: ROUTES.ASK_QUESTION,
 	},
 };

@@ -31,20 +31,20 @@ const Home = async ({ searchParams }: SearchParams) => {
 	return (
 		<>
 			<section className='flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center'>
-				<h1 className='h1-bold text-dark100_light900'>All Questions</h1>
+				<h1 className='h1-bold text-dark100_light900'>All Threads</h1>
 
 				<Button
 					className='primary-gradient min-h-[46px] px-4 py-3 !text-light-900'
 					asChild
 				>
-					<Link href={ROUTES.ASK_QUESTION}>Ask a Question</Link>
+					<Link href={ROUTES.ASK_QUESTION}>Start a Thread</Link>
 				</Button>
 			</section>
 			<section className='mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center'>
 				<LocalSearch
 					route='/'
 					imgSrc='/icons/search.svg'
-					placeholder='Search questions...'
+					placeholder='Search threads...'
 					otherClasses='flex-1'
 				/>
 

@@ -2,39 +2,39 @@ export const sidebarLinks = [
 	{
 		imgURL: "/icons/home.svg",
 		route: "/",
-		label: "Home",
+		label: "Central Hub",
 	},
 	{
 		imgURL: "/icons/users.svg",
 		route: "/community",
-		label: "Community",
+		label: "DevHub",
 	},
 	{
 		imgURL: "/icons/star.svg",
 		route: "/collection",
-		label: "Collections",
-	},
-	{
-		imgURL: "/icons/suitcase.svg",
-		route: "/jobs",
-		label: "Find Jobs",
+		label: "Codepacks",
 	},
 	{
 		imgURL: "/icons/tag.svg",
 		route: "/tags",
-		label: "Tags",
+		label: "Categories",
 	},
 	{
 		imgURL: "/icons/user.svg",
 		route: "/profile",
-		label: "Profile",
+		label: "DevCard",
 	},
 	{
 		imgURL: "/icons/question.svg",
 		route: "/ask-question",
-		label: "Ask a question",
+		label: "Start a Thread",
 	},
-]
+	{
+		imgURL: "/icons/chat.svg",
+		route: "/chat",
+		label: "Chat",
+	},
+];
 
 export const BADGE_CRITERIA = {
 	QUESTION_COUNT: {
@@ -62,4 +62,4 @@ export const BADGE_CRITERIA = {
 		SILVER: 50,
 		GOLD: 100,
 	},
-}
+};

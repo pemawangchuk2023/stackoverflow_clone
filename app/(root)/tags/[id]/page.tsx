@@ -31,7 +31,7 @@ const Page = async ({ params, searchParams }: RouteParams) => {
 				<LocalSearch
 					route={ROUTES.TAG(id)}
 					imgSrc='/icons/search.svg'
-					placeholder='Search questions...'
+					placeholder='Search threads...'
 					otherClasses='flex-1'
 				/>
 				<CommonFilter

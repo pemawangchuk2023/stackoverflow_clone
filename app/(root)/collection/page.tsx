@@ -32,7 +32,7 @@ const Collections = async ({ searchParams }: SearchParams) => {
 				<LocalSearch
 					route={ROUTES.COLLECTION}
 					imgSrc='/icons/search.svg'
-					placeholder='Search questions...'
+					placeholder='Search threads...'
 					otherClasses='flex-1'
 				/>
 				<CommonFilter

@@ -1,0 +1,30 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .hamburger-light { stroke: #000000; }
+    .hamburger-dark { stroke: #FFFFFF; }
+    
+    @media (prefers-color-scheme: dark) {
+      .hamburger-light { display: none; }
+      .hamburger-dark { display: block; }
+    }
+    
+    @media (prefers-color-scheme: light) {
+      .hamburger-light { display: block; }
+      .hamburger-dark { display: none; }
+    }
+  </style>
+  
+  <!-- Light mode lines -->
+  <g class="hamburger-light">
+    <path d="M3 6H21" stroke-width="2" stroke-linecap="round"/>
+    <path d="M3 12H21" stroke-width="2" stroke-linecap="round"/>
+    <path d="M3 18H21" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Dark mode lines -->
+  <g class="hamburger-dark">
+    <path d="M3 6H21" stroke-width="2" stroke-linecap="round"/>
+    <path d="M3 12H21" stroke-width="2" stroke-linecap="round"/>
+    <path d="M3 18H21" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

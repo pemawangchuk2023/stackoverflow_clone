@@ -238,7 +238,7 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
 								<ReloadIcon className='mr-2 size-4 animate-spin' />
 							</>
 						) : (
-							<>{isEdit ? "Edit" : "Ask A Question"}</>
+							<>{isEdit ? "Edit" : "Start a Thread"}</>
 						)}
 					</Button>
 				</div>

@@ -275,3 +275,17 @@ export const ProfileSchema = z.object({
 		message: "Bio must be at least 3 characters.",
 	}),
 });
+
+export const CreateChatMessageSchema = z.object({
+	conversationId: z.string().regex(/^[a-f\d]{24}$/i, "Invalid Mongo ObjectId"),
+	content: z.string().min(1),
+	role: z.enum(["user", "assistant", "system"]).default("user"),
+	userId: z.string().regex(/^[a-f\d]{24}$/i, "Invalid Mongo ObjectId"),
+});
+
+export const GetChatMessagesSchema = z.object({
+	conversationId: z.string().regex(/^[a-f\d]{24}$/i, "Invalid Mongo ObjectId"),
+	page: z.number().optional(),
+	pageSize: z.number().optional(),
+	filter: z.enum(["latest", "oldest"]).optional(),
+});

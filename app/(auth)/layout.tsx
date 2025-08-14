@@ -24,11 +24,11 @@ const AuthLayout = ({
 						</p>
 					</div>
 					<Image
-						src='/images/site-logo.svg'
+						src='/images/logo2.png'
 						alt='site logo'
 						width={50}
 						height={50}
-						className='object-contain'
+						className='object-contain rounded-xl'
 					/>
 				</div>
 				{children}
