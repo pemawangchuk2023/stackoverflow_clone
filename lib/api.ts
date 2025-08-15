@@ -6,7 +6,7 @@ import { fetchHandler } from "./handlers/fetch";
 import { SignInWithOAuthParams } from "@/types/action";
 
 const API_BASE_URL =
-	process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api";
+	process.env.NEXT_PUBLIC_API_BASE_URL || "https://www.querythechain.com/api";
 export const api = {
 	auth: {
 		oAuthSignIn: ({
